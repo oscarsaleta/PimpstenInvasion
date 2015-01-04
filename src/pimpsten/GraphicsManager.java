@@ -52,9 +52,4 @@ public class GraphicsManager {
 		}
 	}
 	
-	public void paintHighScores(Graphics2D g) {
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, maxX, maxY);
-		game.gameMM.highScores(g);
-	}
 }

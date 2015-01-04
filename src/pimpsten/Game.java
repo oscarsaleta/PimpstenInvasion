@@ -56,8 +56,6 @@ public class Game extends Canvas {
 
 	//variables per puntuació
 	private int score = 0;
-	private int highScore;
-	public ScoreManager gameSM;
 
 	//variables temporals pels trets i teleports
 	private long lastShotTime = 0;
@@ -137,7 +135,7 @@ public class Game extends Canvas {
 		//creo el gestor de missatges i el gestor gràfic
 		gameMM = new MessageManager(windowSize.width, windowSize.height,this);
 		gameGM = new GraphicsManager(windowSize.width,windowSize.height,this);
-		gameSM = new ScoreManager("resources/scores/scores.txt",this);
+//		gameSM = new ScoreManager("resources/scores/scores.txt",this);
 
 		initializeVariables();
 
@@ -168,7 +166,7 @@ public class Game extends Canvas {
 		//creem els asteroides (per començar només 5)
 		addAsteroids(5);
 		//mirem quina és la puntuació màxima abans de començar un nou joc
-		highScore = gameSM.getHighScore();
+//		highScore = gameSM.getHighScore();
 	}
 
 	private void addAsteroids(int quantity) {
@@ -264,9 +262,6 @@ public class Game extends Canvas {
 		ship.status = false;
 		SoundManager.playLargeExplosion();
 		waitingForKeyPress = true;
-		if (score > highScore) {
-			gameSM.addNewHighScore(score);
-		}
 	}
 
 	private void shotCollidesWithAsteroid(ShotEntity s, AsteroidEntity a) {
@@ -363,18 +358,6 @@ public class Game extends Canvas {
 			}
 		}
 		//coses a fer quan gamerunning sigui false....
-//		if (gameRunning == 2) {
-//			while (true) {
-//				Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-//				gameGM.paintHighScores(g);
-//				try {
-//					Thread.sleep(100);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//
-//		}
 	}
 
 

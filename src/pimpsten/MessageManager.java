@@ -74,7 +74,7 @@ public class MessageManager {
 		aux.drawString(title1, (maxX-aux.getFontMetrics().stringWidth(title1))/2, maxY/2-150);
 		aux.drawString(title2, (maxX-aux.getFontMetrics().stringWidth(title2))/2, maxY/2-75);
 		
-		String subtitle = "v0.01-alpha";
+		String subtitle = "v1.00-stable";
 		aux.setFont(messageFont);
 		aux.drawString(subtitle, (maxX-aux.getFontMetrics().stringWidth(subtitle))/2, maxY/2);
 
@@ -124,16 +124,4 @@ public class MessageManager {
 		aux.drawString(s, 30, 30);
 	}
 	
-	public void highScores(Graphics2D g) {
-		Graphics2D aux = ((Graphics2D) ((Graphics)g).create());
-		final Font scoreFont = new Font(aux.getFont().getFontName(), Font.PLAIN, 15);
-		
-		String playerNames = game.gameSM.getPlayerNames();
-		String playerScores = game.gameSM.getPlayerScores();
-		
-		aux.setFont(scoreFont);
-		aux.drawString(playerNames,50,50);
-		aux.drawString(playerScores, maxX-150, maxY-150);
-		
-	}
 }

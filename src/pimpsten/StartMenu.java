@@ -1,6 +1,5 @@
 package pimpsten;
 
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -22,8 +21,6 @@ public class StartMenu implements ActionListener {
 	JFrame window;
 	
 	private JMenuItem jmGameRestart;
-	private JMenuItem jmGameScoresShow;
-	private JMenuItem jmGameScoresClear;
 	private JMenuItem jmGameExit;
 	private JMenuItem jmMuteMusic;
 	private JMenuItem jmMuteAll;
@@ -39,14 +36,8 @@ public class StartMenu implements ActionListener {
 
 		JMenu jmGame = new JMenu("Game");
 		jmGameRestart = new JMenuItem("Restart");
-		JMenu jmGameScores = new JMenu("Scores");
-		jmGameScoresShow = new JMenuItem("Show");
-		jmGameScoresClear = new JMenuItem("Clear");
-		jmGameScores.add(jmGameScoresShow);
-		jmGameScores.add(jmGameScoresClear);
 		jmGameExit = new JMenuItem("Exit");
 		jmGame.add(jmGameRestart);
-		jmGame.add(jmGameScores);
 		jmGame.addSeparator();
 		jmGame.add(jmGameExit);
 		jmb.add(jmGame);
@@ -75,8 +66,6 @@ public class StartMenu implements ActionListener {
 		jmb.add(jmHelp);
 
 		jmGameRestart.addActionListener(this);
-		jmGameScoresShow.addActionListener(this);
-		jmGameScoresClear.addActionListener(this);
 		jmGameExit.addActionListener(this);
 		jmMuteMusic.addActionListener(this);
 		jmMuteAll.addActionListener(this);
@@ -92,10 +81,6 @@ public class StartMenu implements ActionListener {
 		if (o == jmGameRestart) {
 			game.waitingForKeyPress = true;
 			game.beginGame();
-		} else if (o == jmGameScoresShow) {
-//			game.gameEvent = 2;
-		} else if (o == jmGameScoresClear) {
-			game.gameSM.eraseScores();
 		} else if (o == jmGameExit) {
 			System.exit(0);
 		} else if (o == jmMuteMusic) {
