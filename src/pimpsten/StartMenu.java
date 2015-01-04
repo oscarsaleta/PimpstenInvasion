@@ -93,7 +93,7 @@ public class StartMenu implements ActionListener {
 			game.waitingForKeyPress = true;
 			game.beginGame();
 		} else if (o == jmGameScoresShow) {
-			game.gameEvent = 2;
+//			game.gameEvent = 2;
 		} else if (o == jmGameScoresClear) {
 			game.gameSM.eraseScores();
 		} else if (o == jmGameExit) {

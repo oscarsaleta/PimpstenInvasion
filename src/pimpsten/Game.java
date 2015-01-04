@@ -37,7 +37,7 @@ public class Game extends Canvas {
 	public BufferStrategy bs;
 
 	//variables que controlen el flux del joc
-	public int gameEvent = 1;
+	public boolean gameRunning = true;
 	public boolean waitingForKeyPress = true;
 	private int victoryCounter = 0;
 
@@ -316,7 +316,7 @@ public class Game extends Canvas {
 		//iniciar el temporitzador
 		long lastLoopTime = System.currentTimeMillis();
 		//això en realitat correrà sempre perquè jocEnMarxa sempre és true
-		while (gameEvent == 1) {
+		while (gameRunning) {
 			//interval de temps transcorregut entre 2 loops
 			long delta = System.currentTimeMillis() - lastLoopTime;
 			//refrescar el temporitzador
@@ -363,18 +363,18 @@ public class Game extends Canvas {
 			}
 		}
 		//coses a fer quan gamerunning sigui false....
-		if (gameEvent == 2) {
-			while (true) {
-				Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-				gameGM.paintHighScores(g);
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
-		}
+//		if (gameRunning == 2) {
+//			while (true) {
+//				Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+//				gameGM.paintHighScores(g);
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//
+//		}
 	}
 
 

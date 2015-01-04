@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
  * 
  * @author Oscar Saleta
  *
- * TODO: ordenar puntuacions, afegir puntuacions
+ * TODO: mostrar puntuacions
  */
 public class ScoreManager {
 
