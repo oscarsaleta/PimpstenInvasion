@@ -15,13 +15,13 @@ public class MessageManager {
 
 	private int maxX;
 	private int maxY;
-	private Game game;
+	private GameOld game;
 
 //	private final Font titleFont = new Font("Press Start 2P", Font.BOLD, 43);
 //	private final Font scoreFont = new Font("Press Start 2P", Font.PLAIN, 20);
 //	private final Font messageFont = new Font("Press Start 2P", Font.PLAIN, 11);
 
-	MessageManager (int maxX, int maxY, Game game) {
+	MessageManager (int maxX, int maxY, GameOld game) {
 		this.maxX = maxX;
 		this.maxY = maxY;
 		this.game = game;

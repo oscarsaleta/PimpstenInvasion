@@ -9,62 +9,62 @@ import java.awt.event.KeyEvent;
  * @author Oscar Saleta
  *
  */
-public class KeyboardEventManager extends KeyAdapter {
+public class KeyboardEventManagerOld extends KeyAdapter {
 	private int pressCount=1;
 
-	GamePanel gp;
+	GameOld game;
 	
-	KeyboardEventManager(GamePanel gp) {
-		this.gp = gp;
+	KeyboardEventManagerOld(GameOld joc) {
+		this.game = joc;
 	}
 	
 	public void keyPressed(KeyEvent e) {
-//		if (gp.waitingForKeyPress)
-//			return;
+		if (game.waitingForKeyPress)
+			return;
 
 		if (e.getKeyCode() == KeyEvent.VK_UP)
-			gp.keyUp = true;
+			game.keyUp = true;
 		if (e.getKeyCode() == KeyEvent.VK_DOWN)
-			gp.keyDown = true;
+			game.keyDown = true;
 		if (e.getKeyCode() == KeyEvent.VK_LEFT)
-			gp.keyLeft = true;
+			game.keyLeft = true;
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-			gp.keyRight = true;
+			game.keyRight = true;
 		if (e.getKeyCode() == KeyEvent.VK_SPACE)
-			gp.keySpace = true;
+			game.keySpace = true;
 		if (e.getKeyCode() == KeyEvent.VK_X)
-			gp.keyX = true;
+			game.keyX = true;
 	}
 
 	public void keyReleased(KeyEvent e) {
-//		if (gp.waitingForKeyPress)
-//			return;
+		if (game.waitingForKeyPress)
+			return;
 
 		if (e.getKeyCode() == KeyEvent.VK_UP)
-			gp.keyUp = false;
+			game.keyUp = false;
 		if (e.getKeyCode() == KeyEvent.VK_DOWN)
-			gp.keyDown = false;
+			game.keyDown = false;
 		if (e.getKeyCode() == KeyEvent.VK_LEFT)
-			gp.keyLeft = false;
+			game.keyLeft = false;
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-			gp.keyRight = false;
+			game.keyRight = false;
 		if (e.getKeyCode() == KeyEvent.VK_SPACE)
-			gp.keySpace = false;
+			game.keySpace = false;
 		if (e.getKeyCode() == KeyEvent.VK_X)
-			gp.keyX = false;
+			game.keyX = false;
 	}
 
 	public void keyTyped(KeyEvent e) {
-//		if (gp.waitingForKeyPress) {
-//			if (pressCount == 1) {
-//				gp.waitingForKeyPress = false;
-//				gp.beginGame();
-//				pressCount=0;
-//			} else {
-//				pressCount++;
-//			}
-//		}
-//		if (e.getKeyChar() == 27)
-//			System.exit(0);
+		if (game.waitingForKeyPress) {
+			if (pressCount == 1) {
+				game.waitingForKeyPress = false;
+				game.beginGame();
+				pressCount=0;
+			} else {
+				pressCount++;
+			}
+		}
+		if (e.getKeyChar() == 27)
+			System.exit(0);
 	}
 }

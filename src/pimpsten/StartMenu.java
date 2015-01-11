@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
  */
 public class StartMenu implements ActionListener {
 	
-	Game game;
+	GameOld game;
 	JFrame window;
 	
 	private JMenuItem jmGameRestart;
@@ -28,7 +28,7 @@ public class StartMenu implements ActionListener {
 	private JMenuItem jmUnMuteAll;
 	private JMenuItem jmHelpAbout;
 	
-	StartMenu(Game game) {
+	StartMenu(GameOld game) {
 		this.game = game;
 		this.window = game.window;
 
