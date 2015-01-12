@@ -22,12 +22,10 @@ public class ShipEntity extends AbstractEntity {
 	private double vertexY;
 	
 	ShipEntity(int x,int y) {
-		super(5);
+		super(5,x,y);
 		width=height=50;
 		centerPositionX = x+width/2;
 		centerPositionY = y+height/2;
-		this.x = x;
-		this.y = y;
 		try {
 			URL url = this.getClass().getResource("resources/graphics/nau2.png");
 			img = ImageIO.read(url);
@@ -41,14 +39,19 @@ public class ShipEntity extends AbstractEntity {
 		super.move(delta);
 		vx*=0.99;
 		vy*=0.99;
-		if (x < 0)
+		if ((x%=xMax)<0)
 			x+=xMax;
-		else if (x > xMax)
-			x-=xMax;
-		if (y < 0)
-			y += yMax;
-		else if (y > yMax)
-			y -= yMax;
+		if ((y%=yMax)<0)
+			y+=yMax;
+		
+//		if (x < 0)
+//			x+=xMax;
+//		else if (x > xMax)
+//			x-=xMax;
+//		if (y < 0)
+//			y += yMax;
+//		else if (y > yMax)
+//			y -= yMax;
 	}
 	
 	void moveEvent(KeyEvent e, int xMax, int yMax) {
@@ -113,10 +116,10 @@ public class ShipEntity extends AbstractEntity {
 	}
 	
 	public void turnRight() {
-		angle-=8;
+		angle-=1;
 	}
 	
 	public void turnLeft() {
-		angle+=8;
+		angle+=1;
 	}
 }

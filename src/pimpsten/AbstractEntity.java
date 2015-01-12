@@ -13,14 +13,16 @@ public abstract class AbstractEntity {
 	protected int width,height;
 	public boolean status;
 
-	protected AbstractEntity(int hp) {
+	protected AbstractEntity(int hp, double x, double y) {
 		this.hp = hp;
 		status = true;
+		this.x = x;
+		this.y = y;
 	}
 
 	protected void move(long delta) {
-		x+=(delta*vx)/100;
-		y+=(delta*vy)/100;
+		x+=(delta*vx)/100.;
+		y+=(delta*vy)/100.;
 	}
 	
 	protected void paint() {
@@ -46,6 +48,14 @@ public abstract class AbstractEntity {
 	
 	public int getHeight() {
 		return height;
+	}
+	
+	public double getCenterPositionX() {
+		return centerPositionX;
+	}
+	
+	public double getCenterPositionY() {
+		return centerPositionY;
 	}
 	
 }

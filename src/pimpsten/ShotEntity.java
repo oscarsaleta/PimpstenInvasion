@@ -14,10 +14,8 @@ public class ShotEntity extends AbstractEntity {
 	BufferedImage img;
 
 	ShotEntity (double x, double y, double vx, double vy, double angle) {
-		super(1);
+		super(1,x,y);
 		width=height=10;
-		this.x = x;
-		this.y = y;
 		this.vx = vx;
 		this.vy = vy;
 		this.angle = angle;

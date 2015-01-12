@@ -11,7 +11,6 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -55,38 +54,40 @@ public class Game extends JFrame implements WindowListener {
 		Container c = getContentPane();
 		
 		gp = new GamePanel(this,period);
+		
 		c.add(gp,"Center");
 
 		JPanel ctrls = new JPanel();
 		ctrls.setLayout(new BoxLayout(ctrls, BoxLayout.X_AXIS));
+		ctrls.setBackground(Color.DARK_GRAY);
 		scoreBox = new JTextField("Score: 0");
 		scoreBox.setEditable(false);
 		scoreBox.setFont(boxFont);
-		scoreBox.setBackground(Color.BLACK);
+		scoreBox.setOpaque(false);
 		scoreBox.setForeground(Color.WHITE);
 		scoreBox.setBorder(BorderFactory.createEmptyBorder());
 		ctrls.add(scoreBox);
 
 		JPanel filler = new JPanel();
-		filler.setBackground(Color.BLACK);
 		Dimension d = new Dimension(350,0);
 		filler.setSize(d);
 		filler.setPreferredSize(d);
 		filler.setMaximumSize(d);
 		filler.setMinimumSize(d);
 		filler.setBorder(BorderFactory.createEmptyBorder());
+		filler.setOpaque(false);
 		ctrls.add(filler);
 		
 		levelBox = new JTextField("Level: 1");
 		levelBox.setEditable(false);
 		levelBox.setFont(boxFont);
-		levelBox.setBackground(Color.BLACK);
+		levelBox.setOpaque(false);
 		levelBox.setForeground(Color.WHITE);
 		levelBox.setBorder(BorderFactory.createEmptyBorder());
 		levelBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		ctrls.add(levelBox);
 
-		c.add(ctrls,"North");
+		c.add(ctrls,"South");
 	}
 
 	public void setLevelBoxNumber(int level) {
@@ -100,7 +101,7 @@ public class Game extends JFrame implements WindowListener {
 	//----MAIN------------------------
 
 	public static void main(String[] args) {
-		long period = (long)1000.0/DEFAULT_FPS;
+		long period = (long)(1000.0/DEFAULT_FPS);
 		new Game(period);
 	}
 

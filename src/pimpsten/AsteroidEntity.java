@@ -15,12 +15,10 @@ public class AsteroidEntity extends AbstractEntity {
 	boolean hasMiniAsteroids;
 	private double rotationDirection;
 	
-	AsteroidEntity(int hp, int x, int y, double vx, double vy) {
-		super(hp);
+	AsteroidEntity(int hp, double x, double y, double vx, double vy) {
+		super(hp,x,y);
 		width = hp*40;
 		height = hp*40;
-		this.x = x;
-		this.y = y;
 		this.vx = vx;
 		this.vy = vy;
 		rotationDirection = Math.random()*2-1;
@@ -44,15 +42,24 @@ public class AsteroidEntity extends AbstractEntity {
 	
 	void move(long delta, int xMax, int yMax) {
 		super.move(delta);
-		angle+=rotationDirection*3;
-		if (centerPositionX > xMax)
-			x-=xMax;
-		else if (centerPositionX < 0)
-			x+=xMax;
-		if (centerPositionY > yMax)
-			y-=yMax;
-		else if (centerPositionY < 0)
-			y+=yMax;
+		angle+=rotationDirection;
+		if (centerPositionX < 0 || centerPositionX > xMax) {
+			if ((x%=xMax) < 0)
+				x+=xMax;
+		}
+			
+		if (centerPositionY > yMax || centerPositionY < 0) {
+			if ((y%=yMax) < 0)
+				y+=yMax;
+		}
+//		if (centerPositionX > xMax)
+//			x-=xMax;
+//		else if (centerPositionX < 0)
+//			x+=xMax;
+//		if (centerPositionY > yMax)
+//			y-=yMax;
+//		else if (centerPositionY < 0)
+//			y+=yMax;
 	}
 
 	public boolean explodes() {
