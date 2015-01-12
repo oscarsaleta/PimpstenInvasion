@@ -12,9 +12,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -32,11 +35,11 @@ public class GamePanel extends JPanel implements Runnable {
 	/**
 	 * Amplada de la finestra
 	 */
-	private static final int PWIDTH = 800;
+	private static final int PWIDTH = 1200;
 	/**
 	 * Alçada de la finestra
 	 */
-	private static final int PHEIGHT = 600;
+	private static final int PHEIGHT = 700;
 	/**
 	 * Màxim nombre de frame updates sense fer sleep abans de fer un yield
 	 */
@@ -87,6 +90,16 @@ public class GamePanel extends JPanel implements Runnable {
 	private boolean teleportMessage = false;
 
 	private int score = 0;
+	
+//	BufferedImage explosion
+//	
+//	try {
+//		URL url = this.getClass().getResource("resources/graphics/explosion.png");
+//		BufferedImage img = ImageIO.read(url);
+//		g.drawImage(img, x-scale*5, y-scale*5, scale*10, scale*10, null);
+//	} catch (IOException e) {
+//		e.printStackTrace();
+//	}
 	
 	public GamePanel(Game game, long period) {
 		this.game = game;
@@ -268,9 +281,9 @@ public class GamePanel extends JPanel implements Runnable {
 		ship.move(delta,PWIDTH,PHEIGHT);
 		for (i=0; i<asteroids.size(); i++) {
 			asteroids.get(i).move(delta,PWIDTH,PHEIGHT);
-			System.out.println("(x,y)=("+asteroids.get(i).getX()+","+asteroids.get(i).getY()+")");
-			System.out.println("c(x,y)=("+asteroids.get(i).getCenterPositionX()+
-					","+asteroids.get(i).getCenterPositionY()+")");
+//			System.out.println("(x,y)=("+asteroids.get(i).getX()+","+asteroids.get(i).getY()+")");
+//			System.out.println("c(x,y)=("+asteroids.get(i).getCenterPositionX()+
+//					","+asteroids.get(i).getCenterPositionY()+")");
 		}
 		for (i=0; i<shots.size(); i++)
 			shots.get(i).move(delta,PWIDTH, PHEIGHT);

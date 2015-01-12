@@ -21,7 +21,7 @@ public class AsteroidEntity extends AbstractEntity {
 		height = hp*40;
 		this.vx = vx;
 		this.vy = vy;
-		rotationDirection = Math.random()*2-1;
+		rotationDirection = (Math.random()*2-1)/2.;
 		if (hp > 1)
 			hasMiniAsteroids = true;
 		try {
@@ -45,9 +45,8 @@ public class AsteroidEntity extends AbstractEntity {
 		angle+=rotationDirection;
 		if (centerPositionX < 0 || centerPositionX > xMax) {
 			if ((x%=xMax) < 0)
-				x+=xMax;
+				x+=xMax+width/2;
 		}
-			
 		if (centerPositionY > yMax || centerPositionY < 0) {
 			if ((y%=yMax) < 0)
 				y+=yMax;

@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 @SuppressWarnings("serial")
 public class Game extends JFrame implements WindowListener {
 
-	private static int DEFAULT_FPS = 80;
+	private static int DEFAULT_FPS = 30;
 
 	private GamePanel gp;
 	private JTextField scoreBox;
