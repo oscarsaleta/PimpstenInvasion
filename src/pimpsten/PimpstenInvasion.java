@@ -187,20 +187,9 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		setBufferStrategy();
 	}
 
-	//	private void showCurrentMode() {
-	//		DisplayMode dm = gd.getDisplayMode();
-	//		System.out.println("Current display mode:  (" +
-	//				dm.getWidth()+","+dm.getHeight()+","+
-	//				dm.getBitDepth()+","+dm.getRefreshRate()+")");
-	//	}
-
 	private void setBufferStrategy() {
 		try {
-			//			EventQueue.invokeAndWait( new Runnable () {
-			//				public void run() {
 			createBufferStrategy(NUM_BUFFERS);
-			//				}
-			//			});
 		} catch (Exception e) {
 			System.err.println("Error creating buffer strategy.");
 			System.exit(0);
@@ -278,10 +267,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		beforeTime = System.nanoTime();
 
 		running = true;
-		while (!running) {
-
-		}
-
 		while (running) {
 
 			gameUpdate(2);
@@ -322,7 +307,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 
 		}
-		System.exit(0);
+		finishOff();
 	}
 
 	private void finishOff() {
@@ -529,7 +514,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	private void shipCollidesWithAsteroid() {
 		ship.status = false;
 //		TODO: so d'explosió
-				SoundManager.playLargeExplosion();
+		SoundManager.playLargeExplosion();
 		gameOver = true;
 	}
 
@@ -538,7 +523,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		s.status = false;
 		score+=10;
 //		TODO: explosió asteroide trencat
-//		SoundManager.playMediumExplosion();
+		SoundManager.playMediumExplosion();
 		//mirem si creem 2 asteroides més petits
 		if(a.explodes()) {
 			double theta = Math.toRadians(30);
@@ -581,7 +566,8 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		if (System.currentTimeMillis()-lastShotTime > timeBetweenShots && ship.status) {
 			lastShotTime = System.currentTimeMillis();
 			shots.addElement(ship.fireShot());
-//			SoundManager.playShot();
+//			TODO: soroll de tret
+			SoundManager.playShot();
 		}
 	}
 
@@ -602,8 +588,11 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		// inicialitzar variables per una nova partida
 		ship = new ShipEntity(pWidth/2, pHeight/2);
 		addAsteroids(5);
+		// música!
+		SoundManager.playBackgroundMusic(0);
 		// per acabar: game over és fals
 		gameOver = false;
+		
 	}
 
 

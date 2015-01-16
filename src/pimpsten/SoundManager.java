@@ -50,7 +50,8 @@ public class SoundManager {
 		play(LARGE_EXPLOSION);
 	}
 
-	public static void playBackgroundMusic() {
+	public static void playBackgroundMusic(int n) {
+		BACKGROUND.setFramePosition(0);
 		loop(BACKGROUND);
 	}
 
