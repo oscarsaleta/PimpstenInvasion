@@ -15,13 +15,13 @@ public class MessageManager {
 
 	private int maxX;
 	private int maxY;
-	private GamePanel game;
+	private PimpstenInvasion game;
 
 //	private final Font titleFont = new Font("Press Start 2P", Font.BOLD, 43);
 //	private final Font scoreFont = new Font("Press Start 2P", Font.PLAIN, 20);
 //	private final Font messageFont = new Font("Press Start 2P", Font.PLAIN, 11);
 
-	MessageManager (int maxX, int maxY, GamePanel game) {
+	MessageManager (int maxX, int maxY, PimpstenInvasion game) {
 		this.maxX = maxX;
 		this.maxY = maxY;
 		this.game = game;
@@ -62,21 +62,19 @@ public class MessageManager {
 		
 		game.gameGM.paintOnlyAsteroids(aux);
 		//pintem el missatge que parpalleja
-		String m = "Press a key to start";
-		blinkingMessage(m, maxY/2+100, aux);
+		String m = "Press a button to start or quit";
+		blinkingMessage(m, maxY/2+260, aux);
 		
 		//pintem els altres missatges
 		aux.setColor(Color.WHITE);
 
-		String title1 = "PIMPSTEN";
-		String title2 = "INVASION";
+		String title1 = "PIMPSTEN INVASION";
 		aux.setFont(titleFont);
 		aux.drawString(title1, (maxX-aux.getFontMetrics().stringWidth(title1))/2, maxY/2-150);
-		aux.drawString(title2, (maxX-aux.getFontMetrics().stringWidth(title2))/2, maxY/2-75);
 		
 		String subtitle = "v1.00-stable";
 		aux.setFont(messageFont);
-		aux.drawString(subtitle, (maxX-aux.getFontMetrics().stringWidth(subtitle))/2, maxY/2);
+		aux.drawString(subtitle, (maxX-aux.getFontMetrics().stringWidth(subtitle))/2, maxY/2-100);
 
 		aux.dispose();
 	}
@@ -108,20 +106,20 @@ public class MessageManager {
 		aux.setFont(messageFont);
 		aux.drawString(m2,(maxX-aux.getFontMetrics().stringWidth(m2))/2, 300);
 		
-		String m3 = "Press a key to restart";
-		blinkingMessage(m3, 350, aux);
+		String m3 = "What a shame. You should try again.";
+		blinkingMessage(m3, maxY/2+260, aux);
 		aux.dispose();
 	}
 
-	public void currentScore(int score, Graphics2D g) {
+	public void currentScore(int score, int level, Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		
-		final Font scoreFont = new Font(aux.getFont().getFontName(), Font.PLAIN, 20);
+		final Font scoreFont = game.arcadeFont.deriveFont(20.0f);
 		
-		String s = "Score: "+score;
 		aux.setColor(Color.WHITE);
 		aux.setFont(scoreFont);
-		aux.drawString(s, 30, 30);
+		aux.drawString("Score: "+score, 30, 30);
+		aux.drawString("Level: "+level,30,60);
 	}
 	
 }

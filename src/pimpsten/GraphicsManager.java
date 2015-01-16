@@ -12,9 +12,9 @@ import javax.imageio.ImageIO;
 public class GraphicsManager {
 
 	private int maxX, maxY;
-	private GamePanel game;
+	private PimpstenInvasion game;
 
-	GraphicsManager(int maxX, int maxY, GamePanel game) {
+	GraphicsManager(int maxX, int maxY, PimpstenInvasion game) {
 		this.maxX = maxX;
 		this.maxY = maxY;
 		this.game = game;

@@ -12,9 +12,9 @@ import java.awt.event.KeyEvent;
 public class KeyboardEventManager extends KeyAdapter {
 	private int pressCount=1;
 
-	GamePanel gp;
+	PimpstenInvasion gp;
 	
-	KeyboardEventManager(GamePanel gp) {
+	KeyboardEventManager(PimpstenInvasion gp) {
 		this.gp = gp;
 	}
 	
