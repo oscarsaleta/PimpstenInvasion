@@ -64,13 +64,12 @@ public class GamePanel extends JPanel implements Runnable {
 	// variables gràfiques
 	private Graphics2D g2d;
 	private Image img = null;
-	private Font arcadeFont;
-	private FontMetrics metrics;
-
+	GraphicsManager gameGM;
+	
 	// objectes del joc
-	private ShipEntity ship;
-	private Vector<AsteroidEntity> asteroids = new Vector<AsteroidEntity>(0);
-	private Vector<ShotEntity> shots = new Vector<ShotEntity>(0);
+	ShipEntity ship;
+	Vector<AsteroidEntity> asteroids = new Vector<AsteroidEntity>(0);
+	Vector<ShotEntity> shots = new Vector<ShotEntity>(0);
 
 	// booleans per input per teclat
 	public boolean keyLeft = false;
@@ -86,21 +85,33 @@ public class GamePanel extends JPanel implements Runnable {
 	private long lastTeleportTime = 0;
 	private long lastTeleportTryTime = 0;
 	private long timeBetweenTeleports = 3000;
-	
-	private boolean teleportMessage = false;
+	int deadFramesCounter = 0;
 
+	// puntuació i nivell
 	private int score = 0;
+	private int level = 1;
+
 	
-//	BufferedImage explosion
-//	
-//	try {
-//		URL url = this.getClass().getResource("resources/graphics/explosion.png");
-//		BufferedImage img = ImageIO.read(url);
-//		g.drawImage(img, x-scale*5, y-scale*5, scale*10, scale*10, null);
-//	} catch (IOException e) {
-//		e.printStackTrace();
-//	}
-	
+
+	//variables per missatges en pantalla
+	MessageManager gameMM;
+	public boolean teleportMessage = false;
+	public long lastVisibilitySwapTime = 0;
+	public long visibleTime = 1000;
+	public long invisibileTime = 500;
+	public boolean isMessageVisible = true;
+	Font arcadeFont;
+
+	//	BufferedImage explosion
+	//	
+	//	try {
+	//		URL url = this.getClass().getResource("resources/graphics/explosion.png");
+	//		BufferedImage img = ImageIO.read(url);
+	//		g.drawImage(img, x-scale*5, y-scale*5, scale*10, scale*10, null);
+	//	} catch (IOException e) {
+	//		e.printStackTrace();
+	//	}
+
 	public GamePanel(Game game, long period) {
 		this.game = game;
 		this.period = period;
@@ -110,7 +121,6 @@ public class GamePanel extends JPanel implements Runnable {
 		// carreguem una font alternativa
 		try {
 			arcadeFont = Font.createFont(Font.TRUETYPE_FONT,this.getClass().getResourceAsStream("resources/fonts/PressStart2P.ttf"));
-			metrics = getFontMetrics(arcadeFont);
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			ge.registerFont(arcadeFont);
 			setFont(arcadeFont);
@@ -129,11 +139,8 @@ public class GamePanel extends JPanel implements Runnable {
 		ship = new ShipEntity(PWIDTH/2, PHEIGHT/2);
 		addAsteroids(5);
 
-		addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				testPress(e.getX(),e.getY());
-			}
-		});
+		gameGM = new GraphicsManager(PWIDTH, PHEIGHT, this);
+		gameMM = new MessageManager(PWIDTH, PHEIGHT, this);
 	}
 
 	private void addAsteroids(int n) {
@@ -193,7 +200,7 @@ public class GamePanel extends JPanel implements Runnable {
 		running = false;
 	}
 
-	
+
 	//----RUN------------------------------------------
 	@Override
 	public void run() {
@@ -206,6 +213,10 @@ public class GamePanel extends JPanel implements Runnable {
 		beforeTime = System.nanoTime();
 
 		running = true;
+		while (!running) {
+			
+		}
+		
 		while (running) {
 
 			gameUpdate(2);
@@ -262,7 +273,7 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 
-	
+
 	//----GAME-UPDATE--------------------------------
 	private void gameUpdate(long delta) {
 		if (!isPaused && !gameOver) {
@@ -271,9 +282,18 @@ public class GamePanel extends JPanel implements Runnable {
 			detectCollisions();
 			eraseDeadEntities();
 			moveShip();
+			if (asteroids.size()==0)
+				levelUp();
 			if (keySpace)
 				shoot();
 		}
+	}
+	
+	
+	private void levelUp() {
+		addAsteroids((int)(Math.random()*10+5));
+		game.setLevelBoxNumber(++level);
+		
 	}
 
 	private void calculateMovement(long delta) {
@@ -281,9 +301,6 @@ public class GamePanel extends JPanel implements Runnable {
 		ship.move(delta,PWIDTH,PHEIGHT);
 		for (i=0; i<asteroids.size(); i++) {
 			asteroids.get(i).move(delta,PWIDTH,PHEIGHT);
-//			System.out.println("(x,y)=("+asteroids.get(i).getX()+","+asteroids.get(i).getY()+")");
-//			System.out.println("c(x,y)=("+asteroids.get(i).getCenterPositionX()+
-//					","+asteroids.get(i).getCenterPositionY()+")");
 		}
 		for (i=0; i<shots.size(); i++)
 			shots.get(i).move(delta,PWIDTH, PHEIGHT);
@@ -305,7 +322,7 @@ public class GamePanel extends JPanel implements Runnable {
 				teleportMessage = false;
 		}
 	}
-	
+
 	private void detectCollisions() {
 		int i,j;
 		//iterarem per a  cada asteroide
@@ -320,12 +337,15 @@ public class GamePanel extends JPanel implements Runnable {
 				ShotEntity s = shots.get(j);
 				if (a.getBounds().intersects(
 						s.getX(), s.getY(),s.getWidth(),s.getHeight())
-						&& s.status == true) //evita que un tret trenqui 2 asteroides
+						&& s.status == true) {//evita que un tret trenqui 2 asteroides
 					shotCollidesWithAsteroid(s,a);
+					score+=10;
+					game.setScoreBoxNumber(score);
+				}
 			}
 		}
 	}
-	
+
 	private void shipCollidesWithAsteroid() {
 		ship.status = false;
 		SoundManager.playLargeExplosion();
@@ -382,8 +402,8 @@ public class GamePanel extends JPanel implements Runnable {
 			SoundManager.playShot();
 		}
 	}
-	
-	
+
+
 	//----GAME-RENDERING-----------------------------
 	private void gameRender() {
 		if (img == null) {
@@ -396,30 +416,41 @@ public class GamePanel extends JPanel implements Runnable {
 			}
 		}
 
-		g2d.setColor(Color.BLACK);
-		g2d.fillRect(0, 0, PWIDTH, PHEIGHT);
+		gameGM.paintBackground(g2d);
+		//		g2d.setColor(Color.BLACK);
+		//		g2d.fillRect(0, 0, PWIDTH, PHEIGHT);
 
 		//		TODO: draw elements
-		
-		int i;
-		if (ship.status == true)
-			ship.paint(g2d);
-		for (i=0; i<asteroids.size(); i++)
-			asteroids.get(i).paint(g2d);
-		for (i=0; i<shots.size(); i++)
-			shots.get(i).paint(g2d);
-		if (teleportMessage) {}
 
+		gameGM.paintObjects(g2d);		
+		//		int i;
+		//		if (ship.status == true)
+		//			ship.paint(g2d);
+		//		for (i=0; i<asteroids.size(); i++)
+		//			asteroids.get(i).paint(g2d);
+		//		for (i=0; i<shots.size(); i++)
+		//			shots.get(i).paint(g2d);		
+		//		if (teleportMessage) {
+		//			final Font messageFont = arcadeFont.deriveFont(13.0f);
+		//			final FontMetrics messageMetrics = getFontMetrics(messageFont);
+		//			String m = "Teleport on cooldown";
+		//			g2d.setFont(messageFont);
+		//			g2d.setColor(Color.WHITE);
+		//			g2d.drawString(m,(PWIDTH-messageMetrics.stringWidth(m))/2,PHEIGHT-100);
+		//		}
 		if (gameOver)
 			gameOverMessage(g2d);
 	}
 
 	private void gameOverMessage(Graphics2D g2d) {
-		//		TODO
+		gameGM.paintExplosion(ship.getX(), ship.getY(), Math.min(deadFramesCounter, 14), g2d);
+		deadFramesCounter++;
+		gameMM.waitMessage(score, g2d);
+
 	}
 
 	//----KEYBOARD-CONTROLS--------------------------------
-	
+
 	private void readyForTermination() {
 		addKeyListener( new KeyAdapter() {
 			public void keyPressed (KeyEvent e) {
@@ -438,12 +469,5 @@ public class GamePanel extends JPanel implements Runnable {
 			}
 		});
 	}
-
-	private void testPress(int x, int y) {
-		if (!isPaused && !gameOver) {
-			//			TODO
-		}
-	}
-
 
 }

@@ -15,13 +15,13 @@ public class MessageManager {
 
 	private int maxX;
 	private int maxY;
-	private GameOld game;
+	private GamePanel game;
 
 //	private final Font titleFont = new Font("Press Start 2P", Font.BOLD, 43);
 //	private final Font scoreFont = new Font("Press Start 2P", Font.PLAIN, 20);
 //	private final Font messageFont = new Font("Press Start 2P", Font.PLAIN, 11);
 
-	MessageManager (int maxX, int maxY, GameOld game) {
+	MessageManager (int maxX, int maxY, GamePanel game) {
 		this.maxX = maxX;
 		this.maxY = maxY;
 		this.game = game;
@@ -95,8 +95,8 @@ public class MessageManager {
 	public void waitMessage(int score, Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		
-		final Font titleFont = new Font(aux.getFont().getFontName(),Font.BOLD,43);
-		final Font messageFont = new Font(aux.getFont().getFontName(),Font.PLAIN,11);
+		final Font titleFont = game.arcadeFont.deriveFont(43.0f).deriveFont(Font.BOLD);//new Font(aux.getFont().getFontName(),Font.BOLD,43);
+		final Font messageFont = game.arcadeFont.deriveFont(11.0f);//new Font(aux.getFont().getFontName(),Font.PLAIN,11);
 		
 		aux.setColor(Color.WHITE);
 		
