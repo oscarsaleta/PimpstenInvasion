@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
  *
  */
 public class KeyboardEventManager extends KeyAdapter {
-	private int pressCount=1;
 
 	PimpstenInvasion gp;
 	
@@ -19,9 +18,6 @@ public class KeyboardEventManager extends KeyAdapter {
 	}
 	
 	public void keyPressed(KeyEvent e) {
-//		if (gp.waitingForKeyPress)
-//			return;
-
 		if (e.getKeyCode() == KeyEvent.VK_UP)
 			gp.keyUp = true;
 		if (e.getKeyCode() == KeyEvent.VK_DOWN)
@@ -37,9 +33,6 @@ public class KeyboardEventManager extends KeyAdapter {
 	}
 
 	public void keyReleased(KeyEvent e) {
-//		if (gp.waitingForKeyPress)
-//			return;
-
 		if (e.getKeyCode() == KeyEvent.VK_UP)
 			gp.keyUp = false;
 		if (e.getKeyCode() == KeyEvent.VK_DOWN)
@@ -54,17 +47,4 @@ public class KeyboardEventManager extends KeyAdapter {
 			gp.keyX = false;
 	}
 
-	public void keyTyped(KeyEvent e) {
-//		if (gp.waitingForKeyPress) {
-//			if (pressCount == 1) {
-//				gp.waitingForKeyPress = false;
-//				gp.beginGame();
-//				pressCount=0;
-//			} else {
-//				pressCount++;
-//			}
-//		}
-//		if (e.getKeyChar() == 27)
-//			System.exit(0);
-	}
 }
