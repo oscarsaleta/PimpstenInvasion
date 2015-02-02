@@ -29,12 +29,11 @@ import javax.swing.JFrame;
 @SuppressWarnings("serial")
 public class PimpstenInvasion extends JFrame implements Runnable {
 
-	//	private Game game;
 
 	private static final int NUM_BUFFERS = 2;
-	private static final int DEFAULT_FPS = 60;
+	private static final int DEFAULT_FPS = 30;
 	/**
-	 * Màxim nombre de frame updates sense fer sleep abans de fer un yield
+	 * Màxim nombre de frame updates sense fer sleep abans de fer un yield (
 	 */
 	private static final int NO_DELAYS_PER_YIELD = 16;
 	/**
@@ -47,7 +46,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	private int pWidth, pHeight;
 
 	/**
-	 * Per tenir entre 80 i 85 FPS (està en nanosegons)
+	 * Això ens permetrà tenir uns FPS constants
 	 */
 	private long period;
 
@@ -82,7 +81,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	private GraphicsDevice gd;
 	private Graphics2D g2d;
 	private BufferStrategy bs;
-	//	private Image img = null;
 	GraphicsManager gameGM;
 
 	// objectes del joc
@@ -269,22 +267,29 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		running = true;
 		while (running) {
 
-			gameUpdate(2);
+			// la delta de gameUpdate() és una reminiscència de com funcionava abans el programa, ara no caldria
+			gameUpdate(1);
 			screenUpdate();
 
+			// mirem quant temps hem tardat en fer l'update
 			afterTime = System.nanoTime();
 			timeDiff = afterTime - beforeTime;
+			/* si cada loop ha de durar period, podem usar el temps que sobra per
+			 * dormir (si n'hi ha) */
 			sleepTime = (period - timeDiff) - overSleepTime;
 
+			// si podem dormir, dormim
 			if (sleepTime > 0) {
 				try {
-					Thread.sleep(sleepTime/1000000L);
+					Thread.sleep(sleepTime/1000000L); // passar el temps a milisegons
 				} catch (InterruptedException e) {
 				}
+				/* overSleepTime és la diferència entre el que realment hem dormit i el
+				 *  que volíem dormir */
 				overSleepTime = (System.nanoTime() - afterTime) - sleepTime;
 			}
-			/* si no podem dormir, ho deixarem passar màxim 16 cops abans de deixar lloc
-			 * a altres threads */
+			/* si no podem dormir, ho deixarem estar màxim 16 cops abans de deixar lloc
+			 * a altres threads (amb yield) */
 			else {
 				excess -= sleepTime;
 				overSleepTime = 0L;
@@ -313,6 +318,8 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	private void finishOff() {
 		if (!finishedOff) {
 			finishedOff = true;
+			/* es surt de la pantalla completa per tornar el control
+			 * a les altres aplicacions */
 			restoreScreen();
 			System.exit(0);
 		}
@@ -513,7 +520,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 	private void shipCollidesWithAsteroid() {
 		ship.status = false;
-//		TODO: so d'explosió
 		SoundManager.playLargeExplosion();
 		gameOver = true;
 	}
@@ -522,7 +528,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		a.status = false;
 		s.status = false;
 		score+=10;
-//		TODO: explosió asteroide trencat
 		SoundManager.playMediumExplosion();
 		//mirem si creem 2 asteroides més petits
 		if(a.explodes()) {
@@ -566,7 +571,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		if (System.currentTimeMillis()-lastShotTime > timeBetweenShots && ship.status) {
 			lastShotTime = System.currentTimeMillis();
 			shots.addElement(ship.fireShot());
-//			TODO: soroll de tret
 			SoundManager.playShot();
 		}
 	}
@@ -615,6 +619,15 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 				}
 			}
 		});
+		/* Per estar realment llestos per acabar el programa, necessitem estar
+		 * segurs de que quan el tanquem es tanquin tots els threads oberts.
+		 * No volem que simplement es deixi de veure la imatge en fullscreen pero
+		 * el joc segueixi ocupant memòria.
+		 * Per això usem un shutdown hook, que és un thread que s'executarà quan
+		 * intentem matar el programa amb System.exit.
+		 * Aquest en particular crida la funció finishOff(), on hem fet que s'alliberi
+		 * el control de la pantalla i es surti del procés del joc.
+		 */
 		Runtime.getRuntime().addShutdownHook(new Thread () {
 			public void run() {
 				finishOff();
