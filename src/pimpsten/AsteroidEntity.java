@@ -51,14 +51,6 @@ public class AsteroidEntity extends AbstractEntity {
 			if ((y%=yMax) < 0)
 				y+=yMax;
 		}
-//		if (centerPositionX > xMax)
-//			x-=xMax;
-//		else if (centerPositionX < 0)
-//			x+=xMax;
-//		if (centerPositionY > yMax)
-//			y-=yMax;
-//		else if (centerPositionY < 0)
-//			y+=yMax;
 	}
 
 	public boolean explodes() {

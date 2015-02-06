@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  * Classe principal del joc?
@@ -107,8 +108,10 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	int deadFramesCounter = 0;
 
 	// puntuació i nivell
+	ScoreManager gameSM;
 	private int score = 0;
 	private int level = 1;
+	private boolean scoreSaved = false;
 
 	//variables per missatges en pantalla
 	MessageManager gameMM;
@@ -117,7 +120,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	public long visibleTime = 1000;
 	public long invisibileTime = 500;
 	public boolean isMessageVisible = true;
-	Font arcadeFont;
+	Font aFont;
 
 
 	public PimpstenInvasion(long period) {
@@ -126,10 +129,10 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 		// carreguem una font alternativa
 		try {
-			arcadeFont = Font.createFont(Font.TRUETYPE_FONT,this.getClass().getResourceAsStream("resources/fonts/PressStart2P.ttf"));
+			aFont = Font.createFont(Font.TRUETYPE_FONT,this.getClass().getResourceAsStream("resources/fonts/PressStart2P.ttf"));
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			ge.registerFont(arcadeFont);
-			setFont(arcadeFont);
+			ge.registerFont(aFont);
+			setFont(aFont);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (FontFormatException e) {
@@ -164,6 +167,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 		gameGM = new GraphicsManager(pWidth, pHeight, this);
 		gameMM = new MessageManager(pWidth, pHeight, this);
+		gameSM = new ScoreManager();
 
 		gameStart();
 	}
@@ -240,19 +244,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			animator = new Thread(this);
 			animator.start();
 		}
-	}
-
-	//----CONTROLS--------------------------------
-	public void pauseGame() {
-		isPaused = true;
-	}
-
-	public void resumeGame() {
-		isPaused = false;
-	}
-
-	public void stopGame() {
-		running = false;
 	}
 
 
@@ -360,7 +351,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 	private void drawGameOverButtons(Graphics2D g2d) {
 		g2d.setColor(Color.WHITE);
-		g2d.setFont(arcadeFont.deriveFont(20.0f));
+		g2d.setFont(aFont.deriveFont(20.0f));
 		FontMetrics metrics = g2d.getFontMetrics();
 
 		if (isOverPlayAgainGameOverButton)
@@ -382,7 +373,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 	private void drawStartButtons(Graphics2D g2d) {
 		g2d.setColor(Color.WHITE);
-		g2d.setFont(arcadeFont.deriveFont(20.0f));
+		g2d.setFont(aFont.deriveFont(20.0f));
 		FontMetrics metrics = g2d.getFontMetrics();
 
 		if (isOverStartMenuButton)
@@ -404,7 +395,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 	private void drawButtons(Graphics2D g2d) {
 		g2d.setColor(Color.WHITE);
-		g2d.setFont(arcadeFont.deriveFont(11.0f));
+		g2d.setFont(aFont.deriveFont(11.0f));
 		FontMetrics metrics = g2d.getFontMetrics();
 
 		if (!gameOver) {
@@ -448,6 +439,11 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		gameGM.paintExplosion(ship.getX(), ship.getY(), Math.min(deadFramesCounter, 14), g2d);
 		deadFramesCounter++;
 		gameMM.waitMessage(score, g2d);
+		
+		if (deadFramesCounter >= 14 && score > gameSM.getTopScore() && !scoreSaved) {
+			gameSM.writeScore(score);
+			scoreSaved = true;
+		}
 	}
 
 	private void screenUpdate() {
@@ -600,6 +596,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		shots.clear();
 		deadFramesCounter=0;
 		score=0;
+		scoreSaved = false;
 		level=1;
 		// netejar tecles de la partida anterior
 		keyUp=false;

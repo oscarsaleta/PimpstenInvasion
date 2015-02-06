@@ -17,10 +17,6 @@ public class MessageManager {
 	private int maxY;
 	private PimpstenInvasion game;
 
-//	private final Font titleFont = new Font("Press Start 2P", Font.BOLD, 43);
-//	private final Font scoreFont = new Font("Press Start 2P", Font.PLAIN, 20);
-//	private final Font messageFont = new Font("Press Start 2P", Font.PLAIN, 11);
-
 	MessageManager (int maxX, int maxY, PimpstenInvasion game) {
 		this.maxX = maxX;
 		this.maxY = maxY;
@@ -93,8 +89,8 @@ public class MessageManager {
 	public void waitMessage(int score, Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		
-		final Font titleFont = game.arcadeFont.deriveFont(43.0f).deriveFont(Font.BOLD);//new Font(aux.getFont().getFontName(),Font.BOLD,43);
-		final Font messageFont = game.arcadeFont.deriveFont(11.0f);//new Font(aux.getFont().getFontName(),Font.PLAIN,11);
+		final Font titleFont = game.aFont.deriveFont(43.0f).deriveFont(Font.BOLD);
+		final Font messageFont = game.aFont.deriveFont(11.0f);
 		
 		aux.setColor(Color.WHITE);
 		
@@ -104,7 +100,13 @@ public class MessageManager {
 		
 		String m2 = "Final score: "+score;
 		aux.setFont(messageFont);
-		aux.drawString(m2,(maxX-aux.getFontMetrics().stringWidth(m2))/2, 300);
+		aux.drawString(m2,(maxX-aux.getFontMetrics().stringWidth(m2))/2, 260);
+		
+		if (game.gameSM.existsScore()) {
+			String t = "Top score: ("+game.gameSM.getTopName()+") "+game.gameSM.getTopScore();
+			aux.setFont(messageFont);
+			aux.drawString(t,(maxX-aux.getFontMetrics().stringWidth(t))/2, 300);
+		}
 		
 		String m3 = "What a shame. You should try again.";
 		blinkingMessage(m3, maxY/2+260, aux);
@@ -114,7 +116,7 @@ public class MessageManager {
 	public void currentScore(int score, int level, Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		
-		final Font scoreFont = game.arcadeFont.deriveFont(20.0f);
+		final Font scoreFont = game.aFont.deriveFont(20.0f);
 		
 		aux.setColor(Color.WHITE);
 		aux.setFont(scoreFont);
