@@ -27,6 +27,7 @@ public class SoundManager {
 	private final static Clip SHOT = loadAudioFile("resources/sound/fire.wav",0f);
 	private final static Clip LARGE_EXPLOSION = loadAudioFile("resources/sound/bangLarge.wav", -10f);
 	private static boolean mediumExplosionBoolean = true;
+	public static volatile boolean IS_MUTED = false;
 
 
 	SoundManager() {
@@ -64,6 +65,7 @@ public class SoundManager {
 	}
 
 	public static void muteAllSounds() {
+		IS_MUTED = true;
 		mute(BACKGROUND, true);
 		mute(SHOT, true);
 		mediumExplosionBoolean = false;
@@ -71,6 +73,7 @@ public class SoundManager {
 	}
 
 	public static void unMuteAllSound() {
+		IS_MUTED = false;
 		mute(BACKGROUND, false);
 		mute(SHOT, false);
 		mediumExplosionBoolean = true;

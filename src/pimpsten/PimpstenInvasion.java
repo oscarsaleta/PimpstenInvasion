@@ -29,7 +29,6 @@ import javax.swing.JFrame;
 @SuppressWarnings("serial")
 public class PimpstenInvasion extends JFrame implements Runnable {
 
-
 	private static final int NUM_BUFFERS = 2;
 	private static final int DEFAULT_FPS = 30;
 	/**
@@ -59,11 +58,14 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	private boolean finishedOff = false;
 	private volatile boolean isPaused = false;
 
-	// botons pause i quit (ingame)
+	// botons pause, mute i quit (ingame)
 	private volatile boolean isOverQuitInGameButton = false;
 	private Rectangle quitInGameArea;
 	private volatile boolean isOverPauseInGameButton = false;
 	private Rectangle pauseInGameArea;
+	private volatile boolean isOverMuteInGameButton = false;
+	private Rectangle muteInGameArea;
+
 
 	// botons start i quit (menu ppal)
 	private volatile boolean isOverStartMenuButton = false;
@@ -151,6 +153,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		// arees pels botons del joc (no són botons reals)
 		pauseInGameArea = new Rectangle(pWidth-100,pHeight-100,75,15);
 		quitInGameArea = new Rectangle(pWidth-100,pHeight-60,75,15);
+		muteInGameArea = new Rectangle(pWidth-100,pHeight-140,75,15);
 		startMenuArea = new Rectangle(pWidth/2-100,pHeight/2-50,200,50);
 		quitMenuArea = new Rectangle(pWidth/2-100,pHeight/2+75,200,50);
 		playAgainGameOverArea = new Rectangle(pWidth/2-125,pHeight/2-50,250,50);
@@ -404,25 +407,41 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		g2d.setFont(arcadeFont.deriveFont(11.0f));
 		FontMetrics metrics = g2d.getFontMetrics();
 
-		if (isOverPauseInGameButton)
-			g2d.setColor(Color.GREEN);
-		g2d.drawRect(pauseInGameArea.x, pauseInGameArea.y, pauseInGameArea.width, pauseInGameArea.height);
-		if (isPaused)
-			g2d.drawString("Paused",pauseInGameArea.x+pauseInGameArea.width/2-metrics.stringWidth("Paused")/2,
-					pauseInGameArea.y+pauseInGameArea.height*3/4);
-		else 
-			g2d.drawString("Pause",pauseInGameArea.x+pauseInGameArea.width/2-metrics.stringWidth("Pause")/2,
-					pauseInGameArea.y+pauseInGameArea.height*3/4);
-		if (isOverPauseInGameButton)
-			g2d.setColor(Color.WHITE);
+		if (!gameOver) {
 
-		if (isOverQuitInGameButton)
-			g2d.setColor(Color.GREEN);
-		g2d.drawRect(quitInGameArea.x, quitInGameArea.y, quitInGameArea.width, quitInGameArea.height);
-		g2d.drawString("Quit", quitInGameArea.x+quitInGameArea.width/2-metrics.stringWidth("Quit")/2,
-				quitInGameArea.y+quitInGameArea.height*3/4);
-		if (isOverQuitInGameButton)
-			g2d.setColor(Color.WHITE);
+			if (isOverPauseInGameButton)
+				g2d.setColor(Color.GREEN);
+			g2d.drawRect(pauseInGameArea.x, pauseInGameArea.y, pauseInGameArea.width, pauseInGameArea.height);
+			if (isPaused)
+				g2d.drawString("Paused",pauseInGameArea.x+pauseInGameArea.width/2-metrics.stringWidth("Paused")/2,
+						pauseInGameArea.y+pauseInGameArea.height*3/4);
+			else 
+				g2d.drawString("Pause",pauseInGameArea.x+pauseInGameArea.width/2-metrics.stringWidth("Pause")/2,
+						pauseInGameArea.y+pauseInGameArea.height*3/4);
+			if (isOverPauseInGameButton)
+				g2d.setColor(Color.WHITE);
+
+			if (isOverQuitInGameButton)
+				g2d.setColor(Color.GREEN);
+			g2d.drawRect(quitInGameArea.x, quitInGameArea.y, quitInGameArea.width, quitInGameArea.height);
+			g2d.drawString("Quit", quitInGameArea.x+quitInGameArea.width/2-metrics.stringWidth("Quit")/2,
+					quitInGameArea.y+quitInGameArea.height*3/4);
+			if (isOverQuitInGameButton)
+				g2d.setColor(Color.WHITE);
+
+			if (isOverMuteInGameButton)
+				g2d.setColor(Color.GREEN);
+			g2d.drawRect(muteInGameArea.x, muteInGameArea.y, muteInGameArea.width, muteInGameArea.height);
+			if (SoundManager.IS_MUTED)
+				g2d.drawString("Muted",muteInGameArea.x+muteInGameArea.width/2-metrics.stringWidth("Muted")/2,
+						muteInGameArea.y+muteInGameArea.height*3/4);
+			else 
+				g2d.drawString("Mute",muteInGameArea.x+muteInGameArea.width/2-metrics.stringWidth("Mute")/2,
+						muteInGameArea.y+muteInGameArea.height*3/4);
+			if (isOverMuteInGameButton)
+				g2d.setColor(Color.WHITE);
+
+		}
 	}
 
 	private void gameOverMessage(Graphics2D g2d) {
@@ -596,7 +615,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		SoundManager.playBackgroundMusic(0);
 		// per acabar: game over és fals
 		gameOver = false;
-		
+
 	}
 
 
@@ -640,6 +659,12 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			isPaused = !isPaused;
 		else if (isOverQuitInGameButton)
 			running = false;
+		else if (isOverMuteInGameButton) {
+			if (SoundManager.IS_MUTED)
+				SoundManager.unMuteAllSound();
+			else
+				SoundManager.muteAllSounds();
+		}
 		else if (isOverQuitMenuButton && waitingToBegin)
 			running = false;
 		else if (isOverStartMenuButton && waitingToBegin)
@@ -659,13 +684,13 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		if (waitingToBegin) {
 			isOverStartMenuButton = startMenuArea.contains(x,y);
 			isOverQuitMenuButton = quitMenuArea.contains(x,y);
+		} else if (gameOver) {
+			isOverPlayAgainGameOverButton = playAgainGameOverArea.contains(x,y);
+			isOverQuitGameOverButton = quitGameOverArea.contains(x,y);
 		} else if (running) {
 			isOverPauseInGameButton = pauseInGameArea.contains(x,y);
 			isOverQuitInGameButton = quitInGameArea.contains(x,y);
-			if (gameOver) {
-				isOverPlayAgainGameOverButton = playAgainGameOverArea.contains(x,y);
-				isOverQuitGameOverButton = quitGameOverArea.contains(x,y);
-			}
+			isOverMuteInGameButton = muteInGameArea.contains(x,y);
 		}
 	}
 
