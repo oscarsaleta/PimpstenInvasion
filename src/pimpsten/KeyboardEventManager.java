@@ -4,14 +4,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 /**
- * Classe que gestiona input per teclat del joc
- * 
+ * Classe que gestiona input per teclat del joc. Usa
+ * flags booleans per saber si una tecla és premuda o
+ * no, així permet fer més d'una acció a la vegada.
  * @author Oscar Saleta
- *
  */
 public class KeyboardEventManager extends KeyAdapter {
 
-	PimpstenInvasion gp;
+	private PimpstenInvasion gp;
 	
 	KeyboardEventManager(PimpstenInvasion gp) {
 		this.gp = gp;

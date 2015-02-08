@@ -2,8 +2,6 @@ package pimpsten;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 
@@ -11,13 +9,10 @@ import javax.imageio.ImageIO;
 
 /**
  * La nau que porta el jugador. Pot girar, accelerar, disparar, teletransportar-se
- * 
  * @author Oscar Saleta
- *
  */
 public class ShipEntity extends AbstractEntity {
 	
-	BufferedImage img;
 	private double vertexX;
 	private double vertexY;
 	
@@ -35,7 +30,13 @@ public class ShipEntity extends AbstractEntity {
 		
 	}
 	
-	void move(long delta, int xMax, int yMax) {
+	/**
+	 * Moviment per inèrcia de la nau
+	 * @param delta interval de temps
+	 * @param xMax amplada de la pantalla
+	 * @param yMax alçada de la pantalla
+	 */
+	public void move(long delta, int xMax, int yMax) {
 		super.move(delta);
 		vx*=0.99;
 		vy*=0.99;
@@ -43,45 +44,14 @@ public class ShipEntity extends AbstractEntity {
 			x+=xMax;
 		if ((y%=yMax)<0)
 			y+=yMax;
-		
-//		if (x < 0)
-//			x+=xMax;
-//		else if (x > xMax)
-//			x-=xMax;
-//		if (y < 0)
-//			y += yMax;
-//		else if (y > yMax)
-//			y -= yMax;
 	}
 	
-	void moveEvent(KeyEvent e, int xMax, int yMax) {
-		int keyCode = e.getKeyCode();
-		vertexX = Math.cos(Math.toRadians(angle+90));
-		vertexY = Math.sin(Math.toRadians(angle+90));
-	    switch( keyCode ) { 
-	        case KeyEvent.VK_UP: //accelerate
-	        	vx += 0.5*vertexX;
-	        	vy -= 0.4*vertexY;
-	            break;
-	            
-	        case KeyEvent.VK_DOWN: //brake
-	        	vx -= 0.5*vertexX;
-	        	vy += 0.4*vertexY;
-	            break;
-	            
-	        case KeyEvent.VK_LEFT:
-	        	angle+=8;
-	        	
-	            break;
-	            
-	        case KeyEvent.VK_RIGHT :
-	        	angle-=8;
-	        	
-	            break;
-	    }
-	}
 
-	void paint(Graphics2D g2d) {
+	/**
+	 * Rutina per pintar la nau amb la rotació pertinent
+	 * @param g2d entorn gràfic
+	 */
+	public void paint(Graphics2D g2d) {
 		super.paint();
 		Graphics2D aux = ((Graphics2D) ((Graphics) g2d).create());
 		aux.rotate(Math.toRadians(-angle),centerPositionX,centerPositionY);
@@ -89,18 +59,31 @@ public class ShipEntity extends AbstractEntity {
 		aux.dispose();
 	}
 
+	/**
+	 * Per fer que la nau dispari. El temps entre trets es controla
+	 * al joc principal.
+	 * @return El tret
+	 */
 	public ShotEntity fireShot () {
 		vertexX = Math.cos(Math.toRadians(angle+90));
 		vertexY = Math.sin(Math.toRadians(angle+90));
 		return new ShotEntity(centerPositionX,centerPositionY-2*vertexY,40*vertexX,-40*vertexY,angle);
 	}
 	
+	/**
+	 * Teleportar la nau (tecla X)
+	 * @param xMax amplada de la pantalla
+	 * @param yMax alçada de la pantalla
+	 */
 	public void teleport(int xMax, int yMax) {
 			x = Math.random()*xMax;
 			y = Math.random()*yMax;
 	}
 	
 	
+	/**
+	 * Accelera la nau
+	 */
 	public void increaseSpeedForward() {
 		vertexX = Math.cos(Math.toRadians(angle+90));
 		vertexY = Math.sin(Math.toRadians(angle+90));
@@ -108,6 +91,9 @@ public class ShipEntity extends AbstractEntity {
 		vy-=0.5*vertexY;
 	}
 	
+	/**
+	 * Decelera la nau
+	 */
 	public void increaseSpeedBackwards() {
 		vertexX = Math.cos(Math.toRadians(angle+90));
 		vertexY = Math.sin(Math.toRadians(angle+90));
@@ -115,10 +101,16 @@ public class ShipEntity extends AbstractEntity {
     	vy += 0.5*vertexY;
 	}
 	
+	/**
+	 * Gira a la dreta
+	 */
 	public void turnRight() {
 		angle-=1;
 	}
 	
+	/**
+	 * Gira a l'esquerra
+	 */
 	public void turnLeft() {
 		angle+=1;
 	}

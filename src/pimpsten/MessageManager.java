@@ -6,10 +6,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 /**
- * Classe que gestiona els missatges que imprimim en pantalla
- * 
+ * Classe que gestiona els missatges que imprimim en pantalla.
+ * Per exemple, imprimeix el nivell/puntuació actuals durant
+ * el joc.
  * @author Oscar Saleta
- *
  */
 public class MessageManager {
 
@@ -50,6 +50,11 @@ public class MessageManager {
 		}
 	}
 
+	/**
+	 * Pantalla d'inici. Pinta el títol del joc i un misstage
+	 * intermitent que informa dels controls del joc
+	 * @param g gràfics
+	 */
 	public void startScreen(Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		
@@ -58,7 +63,7 @@ public class MessageManager {
 		
 		game.gameGM.paintOnlyAsteroids(aux);
 		//pintem el missatge que parpalleja
-		String m = "Press a button to start or quit";
+		String m = "Controls: Arrows-move  Space-shoot  X-teleport";
 		blinkingMessage(m, maxY/2+260, aux);
 		
 		//pintem els altres missatges
@@ -75,6 +80,12 @@ public class MessageManager {
 		aux.dispose();
 	}
 
+	/**
+	 * Si el teletransport no està disponible i el jugador
+	 * l'ha intentat usar, pinta un missatge en pantalla
+	 * per informar
+	 * @param g gràfics
+	 */
 	public void noTeleport(Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		
@@ -86,7 +97,13 @@ public class MessageManager {
 		aux.drawString(m,(maxX-aux.getFontMetrics().stringWidth(m))/2,maxY-100);
 	}
 
-	public void waitMessage(int score, Graphics2D g) {
+	/**
+	 * Pantalla de Game Over. Posa la puntuació final, i
+	 * també la puntuació màxima, amb el nom del jugador.
+	 * @param score puntuació final
+	 * @param g gràfics
+	 */
+	public void gameOverMessage(int score, Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		
 		final Font titleFont = game.aFont.deriveFont(43.0f).deriveFont(Font.BOLD);
@@ -113,6 +130,13 @@ public class MessageManager {
 		aux.dispose();
 	}
 
+	/**
+	 * Panell informatiu que mostra la puntuació i nivell
+	 * actuals
+	 * @param score puntuació
+	 * @param level nivell
+	 * @param g gràfics
+	 */
 	public void currentScore(int score, int level, Graphics2D g) {
 		Graphics2D aux = ((Graphics2D) ((Graphics) g).create());
 		

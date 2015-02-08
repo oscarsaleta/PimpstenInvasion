@@ -16,13 +16,30 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferStrategy;
 import java.io.IOException;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 /**
- * Classe principal del joc?
+ * Classe principal del joc. Aquí es duen a terme totes les
+ * tasques necessàries perquè el joc funcioni.
+ * Aquí hi ha el loop principal del joc, i s'ha implementat
+ * un control de FPS per tenir (dins del possible) sempre
+ * el mateix nombre de frames per loop.
+ * 
+ * Es fa el game update (moure objectes, etc), i
+ * s'implementen totes les col·lisions i l'eliminació dels
+ * objectes que s'han destruit a cada loop.
+ * 
+ * També es controla el rendering del joc, usant double
+ * buffering per evitar "flickering". El joc corre en
+ * pantalla completa.
+ * 
+ * També s'implementen aquí els botons de la UI del joc,
+ * tant del menú principal, i el mecanisme del ratolí
+ * per saber si s'està passant per sobre d'un botó o si
+ * s'ha fet click en un d'ells.
  * 
  * @author Oscar Saleta
  *
@@ -41,13 +58,9 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	 */
 	private static final int MAX_FRAME_SKIPS = 5;
 	/**
-	 * Amplada i alçada de la finestra
+	 * Amplada i alçada de la pantalla
 	 */
 	private int pWidth, pHeight;
-
-	/**
-	 * Això ens permetrà tenir uns FPS constants
-	 */
 	private long period;
 
 	private Thread animator;
@@ -66,7 +79,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	private Rectangle pauseInGameArea;
 	private volatile boolean isOverMuteInGameButton = false;
 	private Rectangle muteInGameArea;
-
 
 	// botons start i quit (menu ppal)
 	private volatile boolean isOverStartMenuButton = false;
@@ -90,6 +102,8 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	ShipEntity ship;
 	Vector<AsteroidEntity> asteroids = new Vector<AsteroidEntity>(0);
 	Vector<ShotEntity> shots = new Vector<ShotEntity>(0);
+	Vector<SaucerEntity> saucer = new Vector<SaucerEntity>(0);
+	Vector<ShotEntity> saucerShots = new Vector<ShotEntity>(0);
 
 	// booleans per input per teclat
 	public boolean keyLeft = false;
@@ -172,6 +186,11 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		gameStart();
 	}
 
+	/**
+	 * Aquí s'estableix que el joc correrà en pantalla
+	 * completa. Si això no pot ser, pararem l'execució
+	 * (no intentarem fer un fallback en finestra)
+	 */
 	private void initFullScreen() {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		gd = ge.getDefaultScreenDevice();
@@ -192,6 +211,9 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		setBufferStrategy();
 	}
 
+	/**
+	 * Creem una bufferstrategy amb 2 buffers
+	 */
 	private void setBufferStrategy() {
 		try {
 			createBufferStrategy(NUM_BUFFERS);
@@ -207,6 +229,10 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		bs = getBufferStrategy();
 	}
 
+	/**
+	 * Afegeix asteroides (i un saucer, si escau) al nivell
+	 * @param n nombre d'asteroides
+	 */
 	private void addAsteroids(int n) {
 		int i;
 		double x,y;
@@ -232,9 +258,17 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 						y = Math.random()*pHeight;
 					} while (y > pHeight/4 && y < 3*pHeight/4);
 				}
-
-				asteroids.addElement(new AsteroidEntity((int)(Math.random()*5+1),(int)x,(int)y,
+				asteroids.addElement(new AsteroidEntity((int)(Math.random()*4+1),(int)x,(int)y,
 						Math.random()*10-5,Math.random()*10-5));
+			}
+
+			/* Cada 3 nivells volem ficar un saucer */
+			if (level>1) {
+				Random random = new Random();
+				x = random.nextBoolean() ? 0 : pWidth;
+				y = random.nextBoolean() ? 0 : pHeight;
+				saucer.addElement(new SaucerEntity(x, y, 0, 0));
+				SoundManager.playSaucerMusic();
 			}
 		}
 	}
@@ -260,18 +294,15 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 		running = true;
 		while (running) {
-
 			// la delta de gameUpdate() és una reminiscència de com funcionava abans el programa, ara no caldria
 			gameUpdate(1);
 			screenUpdate();
-
 			// mirem quant temps hem tardat en fer l'update
 			afterTime = System.nanoTime();
 			timeDiff = afterTime - beforeTime;
 			/* si cada loop ha de durar period, podem usar el temps que sobra per
 			 * dormir (si n'hi ha) */
 			sleepTime = (period - timeDiff) - overSleepTime;
-
 			// si podem dormir, dormim
 			if (sleepTime > 0) {
 				try {
@@ -292,9 +323,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 					noDelays = 0;
 				}
 			}
-
 			beforeTime = System.nanoTime();
-
 			/* Si l'animació triga massa, no aconseguirem els FPS desitjats. Per
 			 * compensar, fem gameUpdates sense renderitzar quan hem perdut frames */
 			int skips = 0;
@@ -303,8 +332,6 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 				gameUpdate(timeDiff/2000000L);
 				skips++;
 			}
-
-
 		}
 		finishOff();
 	}
@@ -327,6 +354,11 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	}
 
 	//----GAME-RENDERING-----------------------------
+	/**
+	 * Cridem les funcions necessàries del GraphicsManager
+	 * per pintar-ho tot a cada loop
+	 * @param g2d gràfics
+	 */
 	private void gameRender(Graphics2D g2d) {
 		if (waitingToBegin) {
 			gameGM.paintBackground(g2d);
@@ -349,6 +381,12 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 	}
 
+	/**
+	 * Pintar els botons de la pantalla GameOver (si el
+	 * ratolí està a sobre d'un botó, aquest es pinta
+	 * verd)
+	 * @param g2d gràfics
+	 */
 	private void drawGameOverButtons(Graphics2D g2d) {
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(aFont.deriveFont(20.0f));
@@ -371,6 +409,10 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			g2d.setColor(Color.WHITE);
 	}
 
+	/**
+	 * Pintar els botons del menú principal
+	 * @param g2d gràfics
+	 */
 	private void drawStartButtons(Graphics2D g2d) {
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(aFont.deriveFont(20.0f));
@@ -393,6 +435,10 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			g2d.setColor(Color.WHITE);
 	}
 
+	/**
+	 * Pintar els botons que apareixen ingame
+	 * @param g2d gràfics
+	 */
 	private void drawButtons(Graphics2D g2d) {
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(aFont.deriveFont(11.0f));
@@ -435,17 +481,26 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 	}
 
+	/**
+	 * Quan perd el jugador, es pinta l'explosió, es mostra
+	 * la pantalla de game over i es demana el nom si hi ha
+	 * hagut puntuació màxima
+	 * @param g2d gràfics
+	 */
 	private void gameOverMessage(Graphics2D g2d) {
 		gameGM.paintExplosion(ship.getX(), ship.getY(), Math.min(deadFramesCounter, 14), g2d);
 		deadFramesCounter++;
-		gameMM.waitMessage(score, g2d);
-		
+		gameMM.gameOverMessage(score, g2d);
+
 		if (deadFramesCounter >= 14 && score > gameSM.getTopScore() && !scoreSaved) {
 			gameSM.writeScore(score);
 			scoreSaved = true;
 		}
 	}
 
+	/**
+	 * Aquí es mostra a la pantalla el contigut del buffer
+	 */
 	private void screenUpdate() {
 		try {
 			g2d = (Graphics2D)bs.getDrawGraphics();
@@ -463,6 +518,10 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 
 	//----GAME-UPDATE--------------------------------
+	/**
+	 * Actualització de l'estat del joc
+	 * @param delta interval de temps
+	 */
 	private void gameUpdate(long delta) {
 		if (waitingToBegin) {
 			// do nothing but wait
@@ -473,6 +532,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			detectCollisions();
 			eraseDeadEntities();
 			moveShip();
+			saucerShoot();
 			if (asteroids.size()==0)
 				levelUp();
 			if (keySpace)
@@ -480,22 +540,36 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 	}
 
-
+	/**
+	 * Augmentar un nivell (i afegir asteroides/ovni)
+	 */
 	private void levelUp() {
-		addAsteroids((int)(Math.random()*10+5));
 		level++;
+		addAsteroids((int)(Math.random()*10+5));
 	}
 
+	/**
+	 * Calcular el moviment dels objectes en un
+	 * determinat interval de temps
+	 * @param delta interval de temps
+	 */
 	private void calculateMovement(long delta) {
 		int i;
 		ship.move(delta,pWidth,pHeight);
-		for (i=0; i<asteroids.size(); i++) {
+		for (i=0; i<asteroids.size(); i++)
 			asteroids.get(i).move(delta,pWidth,pHeight);
-		}
 		for (i=0; i<shots.size(); i++)
 			shots.get(i).move(delta,pWidth, pHeight);
+		for (i=0; i<saucer.size(); i++)
+			saucer.get(i).move(delta,pWidth,pHeight);
+		for (i=0; i<saucerShots.size(); i++)
+			saucerShots.get(i).move(delta,pWidth,pHeight);
 	}
 
+	/**
+	 * Intentar teletransportar la nau si s'ha premut la X,
+	 * si no es pot es mostra el missatge de "no teleport".
+	 */
 	private void teleport() {
 		if (keyX) {
 			if (System.currentTimeMillis()-lastTeleportTime > timeBetweenTeleports) {
@@ -513,6 +587,11 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 	}
 
+	/**
+	 * Aquí es detecten totes les col·lisions:
+	 * asteroide-nau, asteroide-tret, ovni-nau,
+	 * ovni-tret, nau-tret(ovni)
+	 */
 	private void detectCollisions() {
 		int i,j;
 		//iterarem per a  cada asteroide
@@ -522,7 +601,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			if (a.getBounds().intersects(
 					ship.getX(),ship.getY(),ship.getWidth(),ship.getHeight()))
 				shipCollidesWithAsteroid();
-			//mirem xocs asteroide-tret
+			//mirem xocs asteroide-tret(nau)			
 			for (j=0; j<shots.size(); j++) {
 				ShotEntity s = shots.get(j);
 				if (a.getBounds().intersects(
@@ -531,14 +610,76 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 					shotCollidesWithAsteroid(s,a);
 			}
 		}
+		//iterarem pel saucer
+		for (i=0; i<saucer.size(); i++) {
+			SaucerEntity sau = saucer.get(i);
+			if (sau.getBounds().intersects(
+					ship.getX(),ship.getY(),ship.getWidth(),ship.getHeight()))
+				shipCollidesWithSaucer(sau);
+			// mirem xocs tret-saucer
+			for (j=0; j<shots.size(); j++) {
+				ShotEntity s = shots.get(j);
+				if (sau.getBounds().intersects(
+						s.getX(), s.getY(),s.getWidth(),s.getHeight())
+						&& s.status == true)
+					shotCollidesWithSaucer(s,sau);
+			}
+		}
+		// iterarem pels trets del saucer
+		for (i=0; i<saucerShots.size(); i++) {
+			ShotEntity s = saucerShots.get(i);
+			// mirem xocs tret(saucer)-nau
+			if (ship.getBounds().intersects(
+					s.getX(),s.getY(),s.getWidth(),s.getHeight()))
+				shipCollidesWithSaucerShot(s);
+		}
 	}
 
+	/**
+	 * Funció que regeix la col·lisió d'un tret(nau) amb un ovni
+	 * @param s tret (nau)
+	 * @param sau ovni
+	 */
+	private void shotCollidesWithSaucer(ShotEntity s, SaucerEntity sau) {
+		s.status = false;
+		sau.status = false;
+		score+=50;
+		SoundManager.playLargeExplosion();
+	}
+
+	/**
+	 * La nau xoca contra un asteroide. Game over.
+	 */
 	private void shipCollidesWithAsteroid() {
 		ship.status = false;
 		SoundManager.playLargeExplosion();
 		gameOver = true;
 	}
 
+	/**
+	 * La nau xoca contra un ovni. Es fa el mateix que
+	 * amb un asteroide però l'ovni també es trenca 
+	 * @param sau
+	 */
+	private void shipCollidesWithSaucer(SaucerEntity sau) {
+		sau.status = false;
+		shipCollidesWithAsteroid();
+	}
+
+	/**
+	 * L'ovni ha disparat a la nau! Game Over
+	 * @param s tret (ovni)
+	 */
+	private void shipCollidesWithSaucerShot(ShotEntity s) {
+		s.status = false;
+		shipCollidesWithAsteroid();
+	}
+
+	/**
+	 * Es trenca un asteroide d'un tret de la nau
+	 * @param s tret
+	 * @param a asteroide
+	 */
 	private void shotCollidesWithAsteroid(ShotEntity s, AsteroidEntity a) {
 		a.status = false;
 		s.status = false;
@@ -557,6 +698,11 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 	}
 
+	/**
+	 * S'esborren les entitats que tinguin status==false
+	 * del seu vector corresponent (i.e. les que han xocat,
+	 * o trets que s'han sortit de la pantalla)
+	 */
 	private void eraseDeadEntities() {
 		int i;
 		for (i=0; i<asteroids.size(); i++) {
@@ -569,8 +715,21 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			if (s.status == false)
 				shots.removeElement(s);
 		}
+		for (i=0; i<saucer.size(); i++) {
+			SaucerEntity s = saucer.get(i);
+			if (s.status == false)
+				saucer.removeElement(s);
+		}
+		for (i=0; i<saucerShots.size(); i++) {
+			ShotEntity s = saucerShots.get(i);
+			if (s.status == false)
+				saucerShots.removeElement(s);
+		}
 	}
 
+	/**
+	 * Events del teclat fan moure la nau
+	 */
 	private void moveShip() {
 		if (keyUp && !keyDown)
 			ship.increaseSpeedForward();
@@ -582,6 +741,10 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			ship.turnLeft();
 	}
 
+	/**
+	 * Quan es prem l'espai, s'afegeix un tret
+	 * al vector de trets de la nau.
+	 */
 	private void shoot() {
 		if (System.currentTimeMillis()-lastShotTime > timeBetweenShots && ship.status) {
 			lastShotTime = System.currentTimeMillis();
@@ -590,10 +753,34 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 	}
 
+	/**
+	 * L'ovni dispara de forma aleatòria cada
+	 * mig segon.
+	 */
+	private void saucerShoot() {
+		for (int i=0; i<saucer.size(); i++) {
+			SaucerEntity sau = saucer.get(i);
+			ShotEntity s = sau.fireShot();
+			if (s != null) {
+				saucerShots.add(s);
+				SoundManager.playShot();
+			}
+		}
+
+	}
+
+	/**
+	 * Reiniciar la partida (tots els vectors es buiden,
+	 * els booleans, la puntuació i el nivell es
+	 * reinicien, la nau es recol·loca al mig de la
+	 * pantalla, i es generen nous asteroides)
+	 */
 	private void restartGame() {
 		// netejar objectes de la partida anterior
 		asteroids.clear();
 		shots.clear();
+		saucer.clear();
+		saucerShots.clear();
 		deadFramesCounter=0;
 		score=0;
 		scoreSaved = false;
@@ -609,7 +796,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		ship = new ShipEntity(pWidth/2, pHeight/2);
 		addAsteroids(5);
 		// música!
-		SoundManager.playBackgroundMusic(0);
+		SoundManager.playBackgroundMusic();
 		// per acabar: game over és fals
 		gameOver = false;
 
@@ -618,6 +805,14 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 
 	//----KEYBOARD-CONTROLS--------------------------------
 
+	/**
+	 * Aquesta funció afegeix un listener de teclat
+	 * per tancar el programa si es prem la Q, Ctrl+C
+	 * o ESC, i també fa un shutdown hook per assegurar
+	 * que tots els processos del joc es tanquen abans
+	 * de perdre'n el control (e.g. perquè no segueixi
+	 * sonant la música quan hem tancat el joc)
+	 */
 	private void readyForTermination() {
 		addKeyListener( new KeyAdapter() {
 			public void keyPressed (KeyEvent e) {
@@ -651,6 +846,13 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		});
 	}
 
+	/**
+	 * Click de ratolí a les coordenades (x,y).
+	 * Ens serveix per controlar els clicks als
+	 * botons de la UI.
+	 * @param x coordenada x del cursor
+	 * @param y coordenada y del cursor
+	 */
 	private void testPress(int x, int y) {
 		if (isOverPauseInGameButton)
 			isPaused = !isPaused;
@@ -667,7 +869,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		else if (isOverStartMenuButton && waitingToBegin)
 			waitingToBegin = false;
 		else if (isOverPlayAgainGameOverButton && gameOver) {
-			// begin again. how?
+			// begin again.
 			restartGame();
 		}
 		else if (isOverQuitGameOverButton && gameOver)
@@ -677,6 +879,13 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 
 	}
+	/**
+	 * Simplement mira on està el ratolí (sense el
+	 * click) per veure si hem de canviar el color
+	 * dels botons.
+	 * @param x coordenada x del ratolí
+	 * @param y coordenada y del ratolí
+	 */
 	private void testMove(int x, int y) {
 		if (waitingToBegin) {
 			isOverStartMenuButton = startMenuArea.contains(x,y);
@@ -691,6 +900,11 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		}
 	}
 
+	/**
+	 * Main, cridem al constructor del joc i aquest
+	 * ho farà tot
+	 * @param args no hi ha args
+	 */
 	public static void main(String[] args) {
 		new PimpstenInvasion(DEFAULT_FPS);
 	}

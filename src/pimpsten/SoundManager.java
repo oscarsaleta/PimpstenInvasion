@@ -14,11 +14,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Classe que s'encarrega de la gestió dels sons del joc.
- * 
  * @author Oscar Saleta
- * 
  * TODO: poder carregar els sons des del fitxer jar.
- * 
  */
 public class SoundManager {
 
@@ -26,58 +23,79 @@ public class SoundManager {
 	private final static Clip BACKGROUND = loadAudioFile("resources/sound/atari.wav",-20f);
 	private final static Clip SHOT = loadAudioFile("resources/sound/fire.wav",0f);
 	private final static Clip LARGE_EXPLOSION = loadAudioFile("resources/sound/bangLarge.wav", -10f);
+	private final static Clip SAUCER_MUSIC = loadAudioFile("resources/sound/saucer.wav",-20f);
+	
 	private static boolean mediumExplosionBoolean = true;
+	/**
+	 * Per saber si els sons estàn deshabilitats
+	 */
 	public static volatile boolean IS_MUTED = false;
 
 
-	SoundManager() {
-		
+	/**
+	 * Música per quan apareix un ovni
+	 */
+	public static void playSaucerMusic() {
+		play(SAUCER_MUSIC);
 	}
 	
+	/**
+	 * So d'un tret
+	 */
 	public static void playShot() {
 		play(SHOT);
 	}
 
-	// Ho fem així perquè si declarem una explosió mitjana estàtica
-	// i intentem reproduir-ne dues molt seguides es talla el so
+	
+	/**
+	 * So d'explosió d'un asteroide
+	 */
 	public static void playMediumExplosion() {
+		// Ho fem així perquè si declarem una explosió mitjana estàtica
+		// i intentem reproduir-ne dues molt seguides es talla el so
 		if (mediumExplosionBoolean) {
 			Clip mediumExplosion = loadAudioFile("resources/sound/bangMedium.wav",-10f);
 			play(mediumExplosion);
 		}
 	}
 
+	/**
+	 * So d'explosió d'un ovni o de la nau
+	 */
 	public static void playLargeExplosion() {
 		play(LARGE_EXPLOSION);
 	}
 
-	public static void playBackgroundMusic(int n) {
+	/**
+	 * Música de fons
+	 */
+	public static void playBackgroundMusic() {
 		BACKGROUND.setFramePosition(0);
 		loop(BACKGROUND);
 	}
 
-	public static void muteBackgroundMusic() {
-		mute(BACKGROUND,true);
-	}
-
-	public static void unMuteBackgroundMusic() {
-		mute(BACKGROUND,false);
-	}
-
+	/**
+	 * Mutejar tots els sons del joc
+	 */
 	public static void muteAllSounds() {
 		IS_MUTED = true;
 		mute(BACKGROUND, true);
 		mute(SHOT, true);
 		mediumExplosionBoolean = false;
 		mute(LARGE_EXPLOSION, true);
+		mute(SAUCER_MUSIC, true);
 	}
 
+	/**
+	 * Des-mutejar tots els sons
+	 */
 	public static void unMuteAllSound() {
 		IS_MUTED = false;
 		mute(BACKGROUND, false);
 		mute(SHOT, false);
 		mediumExplosionBoolean = true;
 		mute(LARGE_EXPLOSION, false);
+		mute(SAUCER_MUSIC, false);
 	}
 
 	private static void mute(Clip clip, boolean bool) {
