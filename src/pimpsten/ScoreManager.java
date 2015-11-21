@@ -26,10 +26,11 @@ public class ScoreManager {
 
 	private double topScore;
 	private String topName;
+	private String path = "src/pimpsten/resources/scores/scores.txt"; 
 
 	ScoreManager() {
 		try {
-			f = new File("score.txt");
+			f = new File(path);
 			/* si el fitxer score.txt encara no existeix
 			 * el crearem */ 
 			if (!f.exists()) {
@@ -81,7 +82,7 @@ public class ScoreManager {
 	 */
 	private void readScore() {
 		try {
-			st = new StreamTokenizer(new BufferedReader(new FileReader(new File("score.txt"))));
+			st = new StreamTokenizer(new BufferedReader(new FileReader(new File(path))));
 			while (st.ttype != StreamTokenizer.TT_EOF) {
 				st.nextToken();
 				if (st.ttype == StreamTokenizer.TT_WORD)
@@ -101,7 +102,7 @@ public class ScoreManager {
 	public void writeScore(double score) {
 		String name = JOptionPane.showInputDialog("TOP SCORE! What's your name?");
 		try {
-			bw = new BufferedWriter(new FileWriter(new File("score.txt")));
+			bw = new BufferedWriter(new FileWriter(new File(path)));
 			bw.write(score+" "+name);
 			bw.close();
 		} catch (IOException e) {}

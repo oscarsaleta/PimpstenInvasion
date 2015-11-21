@@ -295,7 +295,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 		running = true;
 		while (running) {
 			// la delta de gameUpdate() és una reminiscència de com funcionava abans el programa, ara no caldria
-			gameUpdate(1);
+			gameUpdate(timeDiff/1000000L);
 			screenUpdate();
 			// mirem quant temps hem tardat en fer l'update
 			afterTime = System.nanoTime();
@@ -373,11 +373,12 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 			if (gameOver) {
 				gameOverMessage(g2d);
 				drawGameOverButtons(g2d);
+			} else {
+				//pintar botons quit i pause
+				drawButtons(g2d);
+				//pintar score i level
+				gameMM.currentScore(score, level, g2d);
 			}
-			//pintar botons quit i pause
-			drawButtons(g2d);
-			//pintar score i level
-			gameMM.currentScore(score, level, g2d);
 		}
 	}
 
@@ -803,7 +804,7 @@ public class PimpstenInvasion extends JFrame implements Runnable {
 	}
 
 
-	//----KEYBOARD-CONTROLS--------------------------------
+	//----KEYBOARD+MOUSE-CONTROLS--------------------------------
 
 	/**
 	 * Aquesta funció afegeix un listener de teclat
